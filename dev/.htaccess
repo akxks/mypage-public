@@ -1,0 +1,45 @@
+RewriteEngine on 
+ 
+# Index file also change in config.php if doesnt work here. to ```config[ 'index_page ']= 'home.php'```  
+DirectoryIndex home.php
+
+# Rewrite /foo/bar to /foo/bar.php
+RewriteRule ^([^.?]+)$ %{REQUEST_URI}.php [L]
+
+# Return 404 if original request is /foo/bar.php
+RewriteCond %{THE_REQUEST} "^[^ ]* .*?\.php[? ].*$"
+RewriteRule .* - [L,R=404]
+
+# NOTE! FOR APACHE ON WINDOWS: Add [NC] to RewriteCond like this:
+RewriteCond %{THE_REQUEST} "^[^ ]* .*?\.php[? ].*$" [NC]
+
+ErrorDocument 404 /social-media-project/htdocs/home.php
+
+#disable directory browsing
+Options -Indexes
+
+#redirect https
+RewriteCond %{HTTPS} off 
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+#Setting utf 8 
+IndexOptions +Charset=UTF-8
+
+# LIMIT UPLOAD SIZE to 10 MB to prevent DOS and other nonsense 
+# 50240000 bytes ~ 50 megabytes
+LimitRequestBody 50240000
+
+# BEGIN GZIP
+# BEGIN GZIP COMPRESSION
+<IfModule mod_gzip.c>
+mod_gzip_on Yes
+mod_gzip_dechunk Yes
+mod_gzip_item_include file .(html?|txt|css|js|php|pl)$
+mod_gzip_item_include handler ^cgi-script$
+mod_gzip_item_include mime ^text/.*
+mod_gzip_item_include mime ^application/x-javascript.*
+mod_gzip_item_exclude mime ^image/.*
+mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
+</IfModule>
+# END GZIP COMPRESSION
+# END GZIP 
